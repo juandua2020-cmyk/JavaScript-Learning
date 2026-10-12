@@ -153,7 +153,62 @@
     document.getElementById("halaman3").style.display = "block";
   }
 
-  
+  // ---------- BUAT CHECK-BOX & RADIO (loop dari array) ----------
+  function buatPilihan() {
+    var boxCheck = document.getElementById("boxCheck");
+    var boxRadio = document.getElementById("boxRadio");
+    boxCheck.innerHTML = "<p><b>Check-box</b> (boleh lebih dari satu):</p>";
+    boxRadio.innerHTML = "<p><b>Radio-button</b> (pilih satu):</p>";
+
+    for (var i = 0; i < dataOpsi.length; i++) {
+      var d1 = document.createElement("div");
+      d1.innerHTML = '<input type="checkbox" name="cb" id="cb' + i + '"> ' +
+                     '<label for="cb' + i + '"></label>';
+      d1.querySelector("label").textContent = dataOpsi[i];
+      d1.querySelector("input").value = dataOpsi[i];
+      boxCheck.appendChild(d1);
+
+      var d2 = document.createElement("div");
+      d2.innerHTML = '<input type="radio" name="rb" id="rb' + i + '"> ' +
+                     '<label for="rb' + i + '"></label>';
+      d2.querySelector("label").textContent = dataOpsi[i];
+      d2.querySelector("input").value = dataOpsi[i];
+      boxRadio.appendChild(d2);
+    }
+  }
+
+  // ---------- HALAMAN 3: OUTPUT KALIMAT ----------
+  function halaman3() {
+    var err = document.getElementById("err3");
+    err.textContent = "";
+
+    var terpilihCb = [];
+    var cbs = document.getElementsByName("cb");
+    for (var a = 0; a < cbs.length; a++) {
+      if (cbs[a].checked) terpilihCb.push(cbs[a].value);
+    }
+    var terpilihRb = "";
+    var rbs = document.getElementsByName("rb");
+    for (var b = 0; b < rbs.length; b++) {
+      if (rbs[b].checked) terpilihRb = rbs[b].value;
+    }
+
+    if (terpilihCb.length === 0 || terpilihRb === "") {
+      err.textContent = "Pilih minimal satu check-box dan satu radio-button.";
+      return;
+    }
+
+    var kalimat = "Hallo, nama saya " + nama +
+      ", email " + email +
+      " saya mempunyai sejumlah " + jumlah +
+      " pilihan yaitu " + dataOpsi.join(", ") +
+      ", dan saya memilih " + terpilihCb.join(", ") +
+      " (check-box) serta " + terpilihRb + " (radio-button).";
+
+    var hasil = document.getElementById("hasil");
+    hasil.style.display = "block";
+    hasil.textContent = kalimat;   // textContent supaya aman dari HTML injection
+  }
 </script>
 </body>
 </html>
