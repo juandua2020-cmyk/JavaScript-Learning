@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tugas 4 - JavaScript</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 30px; }
+  .baris { margin: 8px 0; }
+  label.judul { display: inline-block; width: 130px; }
+  .error { color: red; font-size: 14px; margin: 4px 0; }
+  #hasil { margin-top: 20px; padding: 10px; border: 1px solid #999; display: none; }
+</style>
+</head>
+<body>
+
+<h2>Tugas 4 - JavaScript</h2>
+
+<!-- HALAMAN 1: Nama + Jumlah Pilihan -->
+<div id="halaman1">
+  <div class="baris">
+    <label class="judul" for="nama">Nama</label>:
+    <input type="text" id="nama" placeholder="Teks Nama">
+  </div>
+  <div class="baris">
+    <label class="judul" for="jumlah">Jumlah Pilihan</label>:
+    <input type="number" id="jumlah" min="1" max="10" step="1" placeholder="Jml">
+  </div>
+  <div class="error" id="err1"></div>
+  <button type="button" onclick="halaman1()">OK</button>
+</div>
+
+<!-- HALAMAN 2: teks opsi (loop) + email -->
+<div id="halaman2" style="display:none;">
+  <h3>Masukkan Teks Pilihan</h3>
+  <div id="inputOpsi"></div>
+  <div class="baris">
+    <label class="judul" for="email">Email</label>:
+    <input type="text" id="email" placeholder="nama@gmail.com">
+  </div>
+  <div class="error" id="err2"></div>
+  <button type="button" onclick="halaman2()">Proses</button>
+</div>
+
+<!-- HALAMAN 3: check-box + radio-button -->
+<div id="halaman3" style="display:none;">
+  <h3>Silakan Pilih</h3>
+  <div id="boxCheck"></div>
+  <div id="boxRadio"></div>
+  <div class="error" id="err3"></div>
+  <button type="button" onclick="halaman3()">Tampilkan</button>
+</div>
+
+<!-- OUTPUT -->
+<div id="hasil"></div>
+
+<script>
+  var dataOpsi = [];   // array penyimpan teks opsi
+  var nama = "";
+  var email = "";
+  var jumlah = 0;
+
+  // ---------- VALIDASI NAMA (pakai array) ----------
+  // return pesan error, atau "" kalau valid
+  function cekNama(teks) {
+    teks = teks.trim();
+    if (teks === "") return "Nama tidak boleh kosong.";
+    if (teks.length < 3 || teks.length > 30) return "Nama harus 3 sampai 30 karakter.";
+
+    var kata = teks.split(" ");          // array kata
+    var polaKata = /^[A-Za-z]+$/;        // hanya huruf
+    for (var i = 0; i < kata.length; i++) {
+      if (kata[i] === "") return "Nama tidak boleh memiliki spasi ganda.";
+      if (!polaKata.test(kata[i])) return "Nama hanya boleh berisi huruf dan spasi (tanpa angka/simbol).";
+      if (kata[i].length < 2) return "Setiap kata pada nama minimal 2 huruf.";
+    }
+    return "";
+  }
+
+  // ---------- HALAMAN 1 ----------
+  function halaman1() {
+    var err = document.getElementById("err1");
+    var inNama = document.getElementById("nama").value;
+    var inJumlah = document.getElementById("jumlah").value;
+    err.textContent = "";
+
+    var pesanNama = cekNama(inNama);
+    if (pesanNama !== "") {
+      err.textContent = pesanNama;
+      return;
+    }
+
+    var n = Number(inJumlah);
+    if (inJumlah === "" || isNaN(n) || !Number.isInteger(n)) {
+      err.textContent = "Jumlah pilihan harus berupa bilangan bulat.";
+      return;
+    }
+    if (n < 1 || n > 10) {
+      err.textContent = "Jumlah pilihan harus antara 1 sampai 10.";
+      return;
+    }
+
+    nama = inNama.trim();
+    jumlah = n;
+
+    // loop membuat input teks sebanyak jumlah pilihan
+    var wadah = document.getElementById("inputOpsi");
+    wadah.innerHTML = "";
+    for (var i = 0; i < jumlah; i++) {
+      var div = document.createElement("div");
+      div.className = "baris";
+      div.innerHTML = '<label class="judul">Teks Pilihan ' + (i + 1) + '</label>: ' +
+                      '<input type="text" class="opsi" placeholder="Teks ' + (i + 1) + '">';
+      wadah.appendChild(div);
+    }
+
+    // sembunyikan halaman 1, tampilkan halaman 2
+    document.getElementById("halaman1").style.display = "none";
+    document.getElementById("halaman2").style.display = "block";
+  }
+
+  // ---------- HALAMAN 2 ----------
+  function halaman2() {
+    var err = document.getElementById("err2");
+    err.textContent = "";
+
+    // simpan teks opsi ke array
+    var kolom = document.getElementsByClassName("opsi");
+    dataOpsi = [];
+    for (var i = 0; i < kolom.length; i++) {
+      var teks = kolom[i].value.trim();
+      if (teks === "") {
+        err.textContent = "Teks pilihan " + (i + 1) + " belum diisi.";
+        kolom[i].focus();
+        return;
+      }
+      dataOpsi[i] = teks;
+    }
+
+    // cek email: harus ada nama, @, dan domain (mis. gmail.com)
+    var inEmail = document.getElementById("email");
+    var pola = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z]{2,})+$/;
+    if (!pola.test(inEmail.value.trim())) {
+      alert("Email tidak valid! Harus memakai @ dan domain, contoh: nama@gmail.com. Silakan masukkan ulang.");
+      inEmail.value = "";
+      inEmail.focus();
+      return;
+    }
+    email = inEmail.value.trim();
+
+    buatPilihan();
+    document.getElementById("halaman2").style.display = "none";
+    document.getElementById("halaman3").style.display = "block";
+  }
+
+  
+</script>
+</body>
+</html>
